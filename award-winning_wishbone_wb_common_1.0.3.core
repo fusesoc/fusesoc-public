@@ -1,0 +1,21 @@
+CAPI=2:
+
+name : award-winning:wishbone:wb_common:1.0.3
+description: Common Wishbone definitions
+
+filesets:
+  common:
+    files:
+      - wb_common_params.v : {is_include_file : true}
+      - wb_common.v : {is_include_file : true}
+    file_type : verilogSource
+
+targets:
+  default:
+    filesets : [common]
+
+provider:
+  name    : github
+  user    : fusesoc
+  repo    : wb_common
+  version : v1.0.3
