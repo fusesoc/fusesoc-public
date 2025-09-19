@@ -1,0 +1,82 @@
+CAPI=2:
+
+name : award-winning:utils:spi_ram_loader:0.0.1
+description : SPI device for loading data to RAM
+
+filesets :
+  rtl : {files : [spi_ram_loader.v : {file_type : verilogSource}]}
+
+  sky130:
+    files:
+      - sky130.tcl : {file_type : tclSource}
+      - subservient_with_spi_ram_loader.v : {file_type : verilogSource}
+    depend : [subservient]
+
+  soc :
+    files:
+      - subservient_with_spi_ram_loader.v
+      - subservient_with_spi_ram_loader_and_ram.v
+      - subservient_generic_ram.v
+    file_type : verilogSource
+    depend : [subservient]
+
+  tb  :
+    files: [test_spi_ram_loader.py : {file_type : user, copyto : .}]
+    depend : [vlog_tb_utils]
+
+  soc_tb:
+    files:
+      - test_soc.py : {file_type : user, copyto : .}
+      - hello.bin : {file_type : user, copyto : .}
+    depend : [vlog_tb_utils]
+
+targets:
+  default:
+    filesets : [rtl]
+
+  sky130:
+    default_tool: openlane
+    filesets : [rtl, sky130]
+    toplevel : subservient_with_spi_ram_loader
+
+  lint:
+    filesets : [rtl]
+    flow: lint
+    flow_options:
+      tool : verilator
+    parameters : [AW=8]
+    toplevel : spi_ram_loader
+
+  sim:
+    filesets: [rtl, tb]
+    flow : sim
+    flow_options:
+      cocotb_module: test_spi_ram_loader
+      timescale : 1ns/1ns
+      tool: icarus
+    parameters : [AW=8]
+    toplevel : [spi_ram_loader]
+
+  socsim:
+    filesets: [rtl, soc, soc_tb]
+    flow : sim
+    flow_options:
+      cocotb_module: test_soc
+      timescale : 1ns/1ns
+      tool: icarus
+    parameters : [AW=8]
+    toplevel : [subservient_with_spi_ram_loader_and_ram, vlog_tb_utils]
+    
+
+parameters:
+  AW:
+    datatype : int
+    description : Width (in bits) of address bus
+    paramtype : vlogparam
+
+provider:
+  name : github
+  user : olofk
+  repo : spi_ram_loader
+  version : 36564f11df9d2a65c0418a226fe313bbc86ca9eb
+
